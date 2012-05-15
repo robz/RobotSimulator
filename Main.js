@@ -53,30 +53,8 @@ function main() {
 	setInterval("updateState();", 40);
 	
 	canvas.onkeypress = keyPressed;
-	//canvas.onmousedown = turnDragOn;
-	//canvas.onmouseup = turnDragOff;
-	//canvas.onmousemove = mouseDragged;
-}
-/*
-var drag;
-var blackLine = [];
-
-function turnDragOn(event) {
-	drag = true;
 }
 
-function turnDragOff(event) {
-	drag = false;
-	for(var i = 0; i < blackLine.length; i++) {
-		console.log("{x:"+blackLine[i].x+", y:"+blackLine[i].y+"},");
-	}
-}
-
-function mouseDragged(event) {
-	if(!drag) return;
-	blackLine.push({x:event.offsetX,y:event.offsetY});
-}
-*/
 function keyPressed(event) {
 	var key = event.which;
 	//console.log(key);
@@ -168,18 +146,27 @@ function drawObstacles(g2) {
 
 function drawBlackLine(g2) {
 	if (blackLine.length == 0) return;
-	//g2.strokeStyle = "black";
-	g2.fillStyle = "black";
-	//g2.lineWidth = 10;
-	//g2.moveTo(blackLine[0].x*BLACK_LINE_SCALEX,blackLine[0].y*BLACK_LINE_SCALEY);
+	g2.strokeStyle = "black";
+	//g2.fillStyle = "black";
+	g2.lineWidth = BLACK_LINE_POINT_RADIUS*4;
+	g2.beginPath();
+	g2.moveTo(blackLine[0].x*BLACK_LINE_SCALEX,blackLine[0].y*BLACK_LINE_SCALEY);
 	for(var i = 0; i < blackLine.length; i++) {
-		g2.arc(blackLine[i].x, blackLine[i].y,
-			BLACK_LINE_POINT_RADIUS*2, 0, 2*Math.PI, true);
-		//g2.lineTo(blackLine[i].x*BLACK_LINE_SCALEX,blackLine[i].y*BLACK_LINE_SCALEY);
+		//g2.arc(blackLine[i].x, blackLine[i].y, BLACK_LINE_POINT_RADIUS*2, 0, 2*Math.PI, true);
+		g2.lineTo(blackLine[i].x,blackLine[i].y);
 	}
+	
+	//g2.fill();	
+	g2.stroke();
+}
+
+function drawBlackCirc(g2) {
+	g2.fillStyle = "black";
+	g2.beginPath();
+	g2.arc(obstCirc.p.x, obstCirc.p.y, obstCirc.r, 0,2*Math.PI,true);
+	g2.closePath();
 	g2.fill();
-		
-	//g2.stroke();
+
 }
 
 function repaint() {
@@ -192,11 +179,7 @@ function repaint() {
 	g2.fillStyle = "lightblue";
 	g2.fillRect(0,0,SIZEX,SIZEY);
 	
-	
-	g2.fillStyle = "brown";
-	g2.arc(obstCirc.p.x, obstCirc.p.y, obstCirc.r, 0,2*Math.PI,true);
-	g2.fill();
-	
+	drawBlackCirc(g2);
 	drawBlackLine(g2);
 	drawRobot(g2);
 	drawObstacles(g2);
