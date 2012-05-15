@@ -55,10 +55,11 @@ function main() {
 	setInterval("repaint();", 20);
 	setInterval("updateState();", 40);
 	
-	canvas.onkeypress = keyPressed;
+	canvas.onkeydown = keyPressed;
 }
 
 function keyPressed(event) {
+	event.preventDefault(); // freaking dumb firefox quickfind bull.
 	var key = event.which;
 	//console.log(key);
 	
@@ -115,9 +116,11 @@ function drawRobot(g2) {
 	g2.lineWidth = 3;
 	g2.strokeStyle = "darkblue";
 	for(var i = 0; i < treds.length; i++) {
+		g2.beginPath();
 		g2.arc(treds[i][0],treds[i][1],WHEEL_WIDTH/2+treds[i][2]/6,0,2*Math.PI,true);
+		g2.closePath();
+		g2.fill();
 	}
-	g2.fill();
 	
 	// axis & direction lines
 	var corners = robotPolys[0];
