@@ -1,0 +1,26 @@
+canvas.onkeypress = keyPressed;
+	//canvas.onmousedown = turnDragOn;
+	//canvas.onmouseup = turnDragOff;
+	//canvas.onmousemove = mouseDragged;
+}
+
+/*
+var drag;
+var blackLine = [];
+
+function turnDragOn(event) {
+	drag = true;
+}
+
+function turnDragOff(event) {
+	drag = false;
+	for(var i = 0; i < blackLine.length; i++) {
+		console.log("{x:"+blackLine[i].x+", y:"+blackLine[i].y+"},");
+	}
+}
+
+function mouseDragged(event) {
+	if(!drag) return;
+	blackLine.push({x:event.offsetX,y:event.offsetY});
+}
+*/
