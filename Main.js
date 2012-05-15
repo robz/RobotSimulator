@@ -48,6 +48,7 @@ function main() {
 	obstCirc = createCircle({x:SIZEX/2, y:SIZEY/2-100}, 50);
 	
 	state.updateLineSensor();
+	state.updateDistSensor();
 	
 	setInterval("repaint();", 40);
 	setInterval("updateState();", 40);
@@ -169,6 +170,20 @@ function drawBlackCirc(g2) {
 
 }
 
+function drawDistSensor(g2) {
+	var cpoint = state.getPoints()[1];
+	g2.lineWidth = 1;
+	g2.strokeStyle = "purple";
+	
+	g2.beginPath();
+	for(var i = 0; i < 3; i++) {
+		g2.moveTo(cpoint[0], cpoint[1]);
+		g2.lineTo(state.distSensor[i].p.x, state.distSensor[i].p.y);
+	}
+	g2.closePath();
+	g2.stroke();
+}
+
 function repaint() {
 	//console.log("repainting!");
 	
@@ -183,14 +198,18 @@ function repaint() {
 	drawBlackLine(g2);
 	drawRobot(g2);
 	drawObstacles(g2);
+	drawDistSensor(g2);
 	
 	// text
 	g2.fillStyle = "white";
-	g2.font = "bold 1em sans-serif"; 
+	g2.font = "bold 1em courier new"; 
 	g2.textalign = "right"; 
 	g2.fillText("motor 1: "+vel1, 20, 20);
 	g2.fillText("motor 2: "+vel2, 20, 40);
 	g2.fillText("wheel 1: "+Math.round(state.totalw1), 20, 60);
 	g2.fillText("wheel 2: "+Math.round(state.totalw2), 20, 80);
 	g2.fillText("line: "+state.lineSensorText(), 20, 100);
+	g2.fillText("left dist:    "+Math.round(state.distSensor[0].dist), 20, 120);
+	g2.fillText("forward dist: "+Math.round(state.distSensor[1].dist), 20, 140);
+	g2.fillText("right dist:   "+Math.round(state.distSensor[2].dist), 20, 160);
 }

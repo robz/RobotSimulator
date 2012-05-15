@@ -18,6 +18,9 @@ function makeState(xs, ys, thetas, ds) {
 		totalw1: 0,
 		totalw2: 0,
 		sensorVals: [false,false,false,false,false,false,false,false],
+		distSensor: [{theta:0, dist:0, p:null},
+			{theta:0, dist:0, p:null},
+			{theta:0, dist:0, p:null}],
 		
 		update: function(w1,w2) {
 			var x2 = this.x, y2 = this.y, theta2 = this.theta, 
@@ -102,6 +105,7 @@ function makeState(xs, ys, thetas, ds) {
 			this.y = y2;
 			this.theta = theta2;
 			this.updateLineSensor();
+			this.updateDistSensor();
 		},
 		
 		// returns [[x,y],[xc,yc]]
@@ -217,12 +221,56 @@ function makeState(xs, ys, thetas, ds) {
 		},
 		
 		lineSensorText: function() {
-			var str = "[", prefix = "";
+			var str = "[";
 			for(var i = 0; i < 8; i++) {
-				str += prefix+((this.sensorVals[i])?1:0);
-				prefix = " ";
+				str += ""+((this.sensorVals[i])?1:0);
 			}
 			return str+"]";
+		},
+		
+		updateDistSensor: function() {
+			var hx = this.x+(this.d/2.0)*Math.cos(this.theta), 
+				hy = this.y+(this.d/2.0)*Math.sin(this.theta), 
+				htheta = this.theta;
+			
+			var hpoint = {x:hx, y:hy};
+			var thetaDifs = [-PI/2.0, 0, PI/2.0];
+			for(var k = 0; k < 3; k++) {
+				this.distSensor[k].theta = htheta+thetaDifs[k];
+				var vline = createLineFromVector(hpoint, htheta+thetaDifs[k]);
+			
+				var intersectList = [];
+				for(var i = 0; i < obstPolys.length; i++) {
+					var lines = obstPolys[i].lines;
+					for(var j = 0; j < lines.length; j++) {
+						var pline = lines[j];
+						var intersectPoint = getLineIntersection(pline, vline);
+						if(intersectPoint != false)
+							intersectList.push(intersectPoint);
+					}
+				}
+			
+				var minDist = 600;
+				var closestPoint = null;
+				for(var i = 0; i < intersectList.length; i++) {
+					var d = euclidDist(hpoint, intersectList[i]);
+					if (d < minDist) {
+						minDist = d;
+						closestPoint = intersectList[i];
+					}
+				}
+			
+				if (closestPoint != null) {
+					this.distSensor[k].dist = minDist;
+					this.distSensor[k].p = closestPoint;
+				} else {
+					this.distSensor[k].dist = minDist;
+					this.distSensor[k].p = {
+						x:(hpoint.x+minDist*Math.cos(htheta+thetaDifs[k])),
+						y:(hpoint.y+minDist*Math.sin(htheta+thetaDifs[k]))
+					};
+				}
+			}
 		},
 		
 		createRobotPolys: function(hx, hy, htheta) {

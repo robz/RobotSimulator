@@ -23,13 +23,11 @@ Circle = {
 }
 */
 
-function createBox(xs,ys,ws,ls) {
-	return createPolygon([
-		{x:xs,y:ys},
-		{x:xs+ws,y:ys},
-		{x:xs+ws,y:ys+ls},
-		{x:xs,y:ys+ls}
-	]);
+function createLineFromVector(point, theta) {
+	var dis = 999999;
+	var farPoint = {x:(point.x+dis*Math.cos(theta)), 
+		y:(point.y+dis*Math.sin(theta))};
+	return createLine(point, farPoint);
 }
 
 function createCircle(point, radius) {
@@ -37,6 +35,15 @@ function createCircle(point, radius) {
 		p:point,
 		r:radius
 	};
+}
+
+function createBox(xs,ys,ws,ls) {
+	return createPolygon([
+		{x:xs,y:ys},
+		{x:xs+ws,y:ys},
+		{x:xs+ws,y:ys+ls},
+		{x:xs,y:ys+ls}
+	]);
 }
 
 function createPolygon(ps) {
@@ -53,27 +60,12 @@ function createPolygon(ps) {
 	};
 }
 
-function circlesIntersect(c1, c2) {
-	var dist = euclidDis(c1.p, c2.p);
-	return dist <= c1.r+c2.r;
-}
-
-function polysIntersect(polygon1, polygon2) {
-	for(var i = 0; i < polygon1.lines.length; i++) {
-		for(var j = 0; j < polygon2.lines.length; j++) {
-			if(linesIntersect(polygon1.lines[i], polygon2.lines[j]))
-				return true;
-		}
-	}
-	return false;
-}
-
 // expecting pi to be {x:~, y:~}
 // returns line formated {m:~, b:~, v:~, p1:~, p2:~
 //	(b will be x-intercept if v is true)
 //	(will NOT copy pi)
 function createLine(point1, point2) {
-	var isVerticle = point1.x == point2.x;
+	var isVerticle = round4(point1.x) == round4(point2.x);
 	var slope, intercept;
 	
 	if (!isVerticle) {
@@ -91,6 +83,54 @@ function createLine(point1, point2) {
 		p1:point1,
 		p2:point2
 	};
+}
+
+function circlesIntersect(c1, c2) {
+	var dist = euclidDist(c1.p, c2.p);
+	return dist <= c1.r+c2.r;
+}
+
+function polysIntersect(polygon1, polygon2) {
+	for(var i = 0; i < polygon1.lines.length; i++) {
+		for(var j = 0; j < polygon2.lines.length; j++) {
+			if(linesIntersect(polygon1.lines[i], polygon2.lines[j]))
+				return true;
+		}
+	}
+	return false;
+}
+
+// identical to linesIntersect except 
+//	returns point of intersection if there is one
+//	false otherwise
+function getLineIntersection(line1, line2) {
+	if (line1.m == line2.m) {
+		if (line1.b == line2.b) {
+			return onSegment(line1, line2.p1) || onSegment(line1, line2.p2)
+				|| onSegment(line2, line1.p1) || onSegment(line2, line1.p2);
+		}
+		return false;
+	} 
+	
+	var xsect, ysect;
+	
+	if (line1.v) {
+		xsect = line1.b;
+		ysect = line2.m*xsect + line2.b;
+	} else if (line2.v) {
+		xsect = line2.b;
+		ysect = line1.m*xsect + line1.b;
+	} else {
+		xsect = (line2.b - line1.b)/(line1.m - line2.m);
+		ysect = line1.m*xsect + line1.b;
+	}
+	
+	var sect = {x:xsect, y:ysect};
+	
+	if (!(onSegment(line1, sect) && onSegment(line2, sect)))
+		return false;
+		
+	return sect;
 }
 
 // expecting linei to be a Line
@@ -139,7 +179,7 @@ function onSegment(line, point) {
 	}
 }
 
-function euclidDis(p1, p2) {
+function euclidDist(p1, p2) {
 	var xd = p1.x-p2.x, yd = p1.y-p2.y;
 	return Math.sqrt(xd*xd + yd*yd);
 }
