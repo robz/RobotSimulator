@@ -1,16 +1,20 @@
 var PI = Math.PI;
 var WHEEL_WIDTH = 10, NUM_TREDS = 5, W_INC = .1;
-var KEY_d = 100, KEY_e = 101, KEY_f = 102, KEY_r = 114;
+var KEY_d = 100, KEY_e = 101, KEY_f = 102, KEY_r = 114, KEY_space = 32;
 var SIZEX = 600, SIZEY = 600;
 var ROBOT_DIM = 60, ROBOT_START_ANGLE = 0;
+var LINE_SENSOR_RADIUS = 4;
 
 var state;
 var vel1 = 0, vel2 = 0;
 
 var obstPolys = [];
 
-var BLACK_LINE_SCALER = [1403, 675];
+var BLACK_LINE_SCALER = [676, 756]; 
 var BLACK_LINE_SCALEX, BLACK_LINE_SCALEY;
+var BLACK_LINE_POINT_RADIUS = 1;
+
+var obstCirc;
 
 function main() {
 	var canvas = document.getElementById("myCanvas");
@@ -28,8 +32,11 @@ function main() {
 	state = makeState(blackLine[0].x*BLACK_LINE_SCALEX+20, blackLine[0].y*BLACK_LINE_SCALEY,
 		ROBOT_START_ANGLE, ROBOT_DIM);
 	//state = makeState(SIZEX/2,SIZEY/2+100,ROBOT_START_ANGLE,ROBOT_DIM);
-	setInterval("repaint();", 17);
-	setInterval("updateState();", 20);
+	
+	for(var i = 0; i < blackLine.length; i++) {
+		blackLine[i].x = blackLine[i].x*BLACK_LINE_SCALEX;
+		blackLine[i].y = blackLine[i].y*BLACK_LINE_SCALEY;
+	}
 	
 	obstPolys.push(createBox(0,0,5,SIZEY));
 	obstPolys.push(createBox(SIZEX-5,0,5,SIZEY));
@@ -38,9 +45,38 @@ function main() {
 	obstPolys.push(createBox(0,0,SIZEX/3,SIZEY/2));
 	obstPolys.push(createBox(2*SIZEX/3,0,SIZEX/3,SIZEY/2));
 	
+	obstCirc = createCircle({x:SIZEX/2, y:SIZEY/2-100}, 50);
+	
+	state.updateLineSensor();
+	
+	setInterval("repaint();", 40);
+	setInterval("updateState();", 40);
+	
 	canvas.onkeypress = keyPressed;
+	//canvas.onmousedown = turnDragOn;
+	//canvas.onmouseup = turnDragOff;
+	//canvas.onmousemove = mouseDragged;
+}
+/*
+var drag;
+var blackLine = [];
+
+function turnDragOn(event) {
+	drag = true;
 }
 
+function turnDragOff(event) {
+	drag = false;
+	for(var i = 0; i < blackLine.length; i++) {
+		console.log("{x:"+blackLine[i].x+", y:"+blackLine[i].y+"},");
+	}
+}
+
+function mouseDragged(event) {
+	if(!drag) return;
+	blackLine.push({x:event.offsetX,y:event.offsetY});
+}
+*/
 function keyPressed(event) {
 	var key = event.which;
 	//console.log(key);
@@ -58,7 +94,9 @@ function keyPressed(event) {
 	} else if (key == KEY_d) {
 		if (vel2 > -W_INC*10)
 			nvel2 -= W_INC;
-	} 
+	} else if (key == KEY_space) {
+	
+	}
 	
 	vel1 = round4(nvel1);
 	vel2 = round4(nvel2);
@@ -68,7 +106,7 @@ function updateState() {
 	//console.log("updating: "+vel1+","+vel2);
 	
 	if (vel1 != 0 || vel2 != 0) {
-		state.update(vel1,vel2);
+		state.update(vel1*2,vel2*2);
 	}
 }
 
@@ -112,12 +150,14 @@ function drawRobot(g2) {
 	g2.stroke();
 	
 	// line sensor
-	var sensors = state.getLineSensorPoints(vals[0][0],vals[0][1],vals[0][2]);
+	var sensors = state.getLineSensors(vals[0][0],vals[0][1],vals[0][2]);
 	for(var i = 0; i < sensors.length; i++) {
-		g2.fillStyle = (sensors[i].on) ? "darkgreen" : "white";
-		g2.arc(sensors[i].x,sensors[i].y,4,0,2*Math.PI,true);
+		g2.fillStyle = (sensors[i].on) ? "darkgreen" : "lightgray";
+		g2.beginPath();
+		g2.arc(sensors[i].x,sensors[i].y,LINE_SENSOR_RADIUS,0,2*Math.PI,true);
+		g2.closePath();
+		g2.fill();
 	}
-	g2.fill();
 }
 
 function drawObstacles(g2) {
@@ -128,17 +168,18 @@ function drawObstacles(g2) {
 
 function drawBlackLine(g2) {
 	if (blackLine.length == 0) return;
-	g2.strokeStyle = "black";
-	//g2.fillStyle = "black";
-	g2.lineWidth = 10;
-	g2.moveTo(blackLine[0].x*BLACK_LINE_SCALEX,blackLine[0].y*BLACK_LINE_SCALEY);
+	//g2.strokeStyle = "black";
+	g2.fillStyle = "black";
+	//g2.lineWidth = 10;
+	//g2.moveTo(blackLine[0].x*BLACK_LINE_SCALEX,blackLine[0].y*BLACK_LINE_SCALEY);
 	for(var i = 0; i < blackLine.length; i++) {
-		//g2.arc(blackLine[i].x*BLACK_LINE_SCALEX,blackLine[i].y*BLACK_LINE_SCALEY,10,0,2*Math.PI,true);
-		g2.lineTo(blackLine[i].x*BLACK_LINE_SCALEX,blackLine[i].y*BLACK_LINE_SCALEY);
+		g2.arc(blackLine[i].x, blackLine[i].y,
+			BLACK_LINE_POINT_RADIUS*2, 0, 2*Math.PI, true);
+		//g2.lineTo(blackLine[i].x*BLACK_LINE_SCALEX,blackLine[i].y*BLACK_LINE_SCALEY);
 	}
-	//g2.fill();
+	g2.fill();
 		
-	g2.stroke();
+	//g2.stroke();
 }
 
 function repaint() {
@@ -151,7 +192,12 @@ function repaint() {
 	g2.fillStyle = "lightblue";
 	g2.fillRect(0,0,SIZEX,SIZEY);
 	
-	//drawBlackLine(g2);
+	
+	g2.fillStyle = "brown";
+	g2.arc(obstCirc.p.x, obstCirc.p.y, obstCirc.r, 0,2*Math.PI,true);
+	g2.fill();
+	
+	drawBlackLine(g2);
 	drawRobot(g2);
 	drawObstacles(g2);
 	
@@ -163,4 +209,5 @@ function repaint() {
 	g2.fillText("motor 2: "+vel2, 20, 40);
 	g2.fillText("wheel 1: "+Math.round(state.totalw1), 20, 60);
 	g2.fillText("wheel 2: "+Math.round(state.totalw2), 20, 80);
+	g2.fillText("line: "+state.lineSensorText(), 20, 100);
 }

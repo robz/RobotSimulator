@@ -16,6 +16,11 @@ Polygon = {
 	points: [array of points in clockwise order],
 	lines: [array of lines in clockwise order]
 }
+
+Circle = {
+	p: Point,
+	r: ~
+}
 */
 
 function createBox(xs,ys,ws,ls) {
@@ -25,6 +30,13 @@ function createBox(xs,ys,ws,ls) {
 		{x:xs+ws,y:ys+ls},
 		{x:xs,y:ys+ls}
 	]);
+}
+
+function createCircle(point, radius) {
+	return {
+		p:point,
+		r:radius
+	};
 }
 
 function createPolygon(ps) {
@@ -39,6 +51,11 @@ function createPolygon(ps) {
 		lines:ls,
 		points:ps
 	};
+}
+
+function circlesIntersect(c1, c2) {
+	var dist = euclidDis(c1.p, c2.p);
+	return dist <= c1.r+c2.r;
 }
 
 function polysIntersect(polygon1, polygon2) {
@@ -122,6 +139,10 @@ function onSegment(line, point) {
 	}
 }
 
+function euclidDis(p1, p2) {
+	var xd = p1.x-p2.x, yd = p1.y-p2.y;
+	return Math.sqrt(xd*xd + yd*yd);
+}
 
 
 
