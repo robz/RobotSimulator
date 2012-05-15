@@ -19,17 +19,19 @@ var obstCirc;
 function main() {
 	var canvas = document.getElementById("myCanvas");
 	
-	getBrowserWindowSizeInit();
-	browserSize = getSize();
-	SIZEX = browserSize.width-30;
-	SIZEY = browserSize.height-50;
+	//getBrowserWindowSizeInit();
+	//browserSize = getSize();
+	//SIZEX = browserSize.width-30;
+	//SIZEY = browserSize.height-50;
+	SIZEX = 700;
+	SIZEY = 600;
 	canvas.width = SIZEX;
 	canvas.height = SIZEY;
 	console.log("the field is "+SIZEX+" by "+SIZEY);
 	BLACK_LINE_SCALEX = SIZEX/BLACK_LINE_SCALER[0];
 	BLACK_LINE_SCALEY = SIZEY/BLACK_LINE_SCALER[1];
 	
-	state = makeState(blackLine[0].x*BLACK_LINE_SCALEX+20, blackLine[0].y*BLACK_LINE_SCALEY,
+	state = makeState(blackLine[0].x*BLACK_LINE_SCALEX+30, blackLine[0].y*BLACK_LINE_SCALEY,
 		ROBOT_START_ANGLE, ROBOT_DIM);
 	//state = makeState(SIZEX/2,SIZEY/2+100,ROBOT_START_ANGLE,ROBOT_DIM);
 	
@@ -50,7 +52,7 @@ function main() {
 	state.updateLineSensor();
 	state.updateDistSensor();
 	
-	setInterval("repaint();", 40);
+	setInterval("repaint();", 20);
 	setInterval("updateState();", 40);
 	
 	canvas.onkeypress = keyPressed;
@@ -151,12 +153,11 @@ function drawBlackLine(g2) {
 	//g2.fillStyle = "black";
 	g2.lineWidth = BLACK_LINE_POINT_RADIUS*4;
 	g2.beginPath();
-	g2.moveTo(blackLine[0].x*BLACK_LINE_SCALEX,blackLine[0].y*BLACK_LINE_SCALEY);
+	g2.moveTo(blackLine[0].x,blackLine[0].y);
 	for(var i = 0; i < blackLine.length; i++) {
 		//g2.arc(blackLine[i].x, blackLine[i].y, BLACK_LINE_POINT_RADIUS*2, 0, 2*Math.PI, true);
 		g2.lineTo(blackLine[i].x,blackLine[i].y);
 	}
-	
 	//g2.fill();	
 	g2.stroke();
 }
