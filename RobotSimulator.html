@@ -5,6 +5,9 @@
 	<script src="Geometry.js" type="text/javascript"></script>
 	<script src="RobotState.js" type="text/javascript"></script>
 	<script src="BlackLine.js" type="text/javascript"></script>
+	<script src="Simuware.js" type="text/javascript"></script>
+	<script src="LineFollower.js" type="text/javascript"></script>
+	<script src="WallFollower.js" type="text/javascript"></script>
 	<style> 
 canvas { 
 	border: 1px solid black;
@@ -16,7 +19,8 @@ canvas {
 	</style>
 </head>
 <body onload="main()" onkeypress="keyPressed(event)">
-	<div>press 'e'/'d' to increase/decrease motor 1 and 'r'/'f' to increase/decrease motor 2</div>
+	<div>press 'e'/'d' to increase/decrease motor 1, 'r'/'f' to increase/decrease motor 2</div>
+	<div>'l' to turn on line following and 'k' to turn on wall following</div>
 	<canvas id="myCanvas"></canvas>
 </body>
 </html>

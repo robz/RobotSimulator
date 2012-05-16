@@ -1,6 +1,7 @@
 var PI = Math.PI;
 var WHEEL_WIDTH = 10, NUM_TREDS = 5, W_INC = .1;
-var KEY_d = 100, KEY_e = 101, KEY_f = 102, KEY_r = 114, KEY_space = 32;
+var KEY_d = 100, KEY_e = 101, KEY_f = 102, KEY_r = 114, KEY_space = 32,
+	KEY_k = 107, KEY_l = 108;
 var SIZEX = 600, SIZEY = 600;
 var ROBOT_DIM = 60, ROBOT_START_ANGLE = 0;
 var LINE_SENSOR_RADIUS = 4;
@@ -15,6 +16,9 @@ var BLACK_LINE_SCALEX, BLACK_LINE_SCALEY;
 var BLACK_LINE_POINT_RADIUS = 1;
 
 var obstCirc;
+
+var lineFollowerOn = false,
+	wallFollowerOn = false;
 
 function main() {
 	var canvas = document.getElementById("myCanvas");
@@ -52,32 +56,46 @@ function main() {
 	state.updateLineSensor();
 	state.updateDistSensor();
 	
-	setInterval("repaint();", 20);
+	setInterval("repaint();", 30);
 	setInterval("updateState();", 40);
 	
 	canvas.onkeydown = keyPressed;
+	
+	ls_main();
+	wf_main();
 }
 
 function keyPressed(event) {
 	event.preventDefault(); // freaking dumb firefox quickfind bull.
 	var key = event.which;
-	//console.log(key);
+	console.log(key);
 	
 	var nvel1 = vel1, nvel2 = vel2;
-	if (key == KEY_r) {
-		if (vel1 < W_INC*10)
-			nvel1 += W_INC;
-	} else if (key == KEY_f) {
-		if (vel1 > -W_INC*10)
-			nvel1 -= W_INC;
-	} else if (key == KEY_e) {
-		if (vel2 < W_INC*10)
-			nvel2 += W_INC;
-	} else if (key == KEY_d) {
-		if (vel2 > -W_INC*10)
-			nvel2 -= W_INC;
-	} else if (key == KEY_space) {
-	
+	if (!wallFollowerOn && !lineFollowerOn) {	
+		if (key == KEY_r) {
+			if (vel1 < W_INC*10)
+				nvel1 += W_INC;
+		} else if (key == KEY_f) {
+			if (vel1 > -W_INC*10)
+				nvel1 -= W_INC;
+		} else if (key == KEY_e) {
+			if (vel2 < W_INC*10)
+				nvel2 += W_INC;
+		} else if (key == KEY_d) {
+			if (vel2 > -W_INC*10)
+				nvel2 -= W_INC;
+		}
+	} 
+	if (key == KEY_l && !wallFollowerOn) {
+		lineFollowerOn = !lineFollowerOn;
+		if (!lineFollowerOn) {
+			nvel1 = nvel2 = 0;
+		}
+	} else if (key == KEY_k && !lineFollowerOn) {
+		wallFollowerOn = !wallFollowerOn;
+		if (!wallFollowerOn) {
+			nvel1 = nvel2 = 0;
+		}
 	}
 	
 	vel1 = round4(nvel1);
