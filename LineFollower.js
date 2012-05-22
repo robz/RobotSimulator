@@ -1,9 +1,18 @@
 var lspow1 = 0, lspow2 = 0;
+var lslookup = { 
+	0: [-.5,.5],
+	1: [-.2,.5],
+	2: [.4,.8],
+	3: [.7,.7],
+	4: [.7,.7],
+	5: [.8,.4],
+	6: [.5,-.2],
+	7: [.5,-.5]
+};
 
 function ls_main() {
-	console.log("starting line follower!");
-	lspow1 = .5;
-	lspow2 = .5;
+	console.log("initializing line follower!");
+	lspow1 = lspow2 = .5;
 	setInterval("ls_loop();", 100);
 }
 
@@ -11,37 +20,29 @@ function ls_loop() {
 	if(!lineFollowerOn) return;
 
 	var linesensor = readLineSensor();
-	var nonzero = false, totalnum = 0, totalval = 0;
+	var total = 0, min = -1, max;
 	for(var i = 0; i < 8; i++) {
 		if (linesensor[i]) {
-			totalval += (i+1);
-			totalnum += 1;
+			total++;
+			max = i;
+			if(min == -1) 
+				min = i;
 		}
-		nonzero |= linesensor[i];
 	}
 	
-	if (!nonzero) {
-	
-	} else {
-		var average = totalval/totalnum;
-		if (average < 3) {
-			lspow1 = .1;
-			lspow2 = .9;
-		} else if (average < 4) {
-			lspow1 = .3;
-			lspow2 = .7;
-		} else if (average > 6) {
-			lspow1 = .9;
-			lspow2 = .1;
-		} else if (average > 4) {
-			lspow1 = .7;
-			lspow2 = .3;
+	if (total != 0) {
+		if (total > 5) {
+			lspow1 = lspow2 = .4;
+		} else if (Math.abs(min-3.5) == Math.abs(max-3.5)) {
+			lspow1 = lspow2 = .6;
+		} else if (Math.abs(min-3.5) > Math.abs(max-3.5)) {
+			lspow1 = lslookup[min][0];
+			lspow2 = lslookup[min][1];
 		} else {
-			lspow1 = .7;
-			lwpow2 = .7;
+			lspow1 = lslookup[max][0];
+			lspow2 = lslookup[max][1];
 		}
 	}
 	
-	if (lineFollowerOn) 
-		setMotorPowers(lspow1, lspow2);
+	setMotorPowers(lspow1, lspow2);
 }

@@ -250,7 +250,7 @@ function makeState(xs, ys, thetas, ds) {
 					}
 				}
 			
-				var minDist = 600;
+				var minDist = DIST_SENSOR_CAP;
 				var closestPoint = null;
 				for(var i = 0; i < intersectList.length; i++) {
 					var d = euclidDist(hpoint, intersectList[i]);

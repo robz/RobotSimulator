@@ -1,7 +1,7 @@
 var wfpow1 = 0, wfpow2 = 0;
 
 function wf_main() {
-	console.log("starting wall follower!");
+	console.log("initializing wall follower!");
 	wfpow1 = .5;
 	wfpow2 = .5;
 	setInterval("wf_loop();", 100);
