@@ -5,7 +5,9 @@ function readLineSensor() {
 
 // returns [left, center, right]
 function readDistSensor() {
-	return [state.distSensor[0].dist, state.distSensor[1].dist, state.distSensor[2].dist];
+	return {left:state.distSensor[0].dist, 
+		center:state.distSensor[1].dist, 
+		right:state.distSensor[2].dist};
 }
 
 // returns [left enc, right enc]

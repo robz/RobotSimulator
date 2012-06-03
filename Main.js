@@ -4,7 +4,7 @@ var KEY_d = 100, KEY_e = 101, KEY_f = 102, KEY_r = 114, KEY_space = 32,
 	KEY_k = 107, KEY_l = 108, KEY_g = 103, KEY_h = 104, KEY_a = 97, KEY_s = 115,
 	KEY_w = 119;
 var SIZEX = 600, SIZEY = 600;
-var ROBOT_DIM = 60, ROBOT_START_ANGLE = 0;
+var ROBOT_DIM = 50, ROBOT_START_ANGLE = 2*PI*Math.random();
 var LINE_SENSOR_RADIUS = 4;
 var DIST_SENSOR_CAP = 400;
 
@@ -35,10 +35,10 @@ function main() {
 	BLACK_LINE_SCALEX = SIZEX/BLACK_LINE_SCALER[0];
 	BLACK_LINE_SCALEY = SIZEY/BLACK_LINE_SCALER[1];
 	
-	state = makeState(blackLine[0].x*BLACK_LINE_SCALEX+30, 
-		blackLine[0].y*BLACK_LINE_SCALEY,
-		ROBOT_START_ANGLE, ROBOT_DIM);
-	//state = makeState(SIZEX/2,SIZEY/2+100,ROBOT_START_ANGLE,ROBOT_DIM);
+	//state = makeState(blackLine[0].x*BLACK_LINE_SCALEX+30, 
+	//	blackLine[0].y*BLACK_LINE_SCALEY,
+	//	ROBOT_START_ANGLE, ROBOT_DIM);
+	state = makeState(SIZEX/2,SIZEY/2+100,ROBOT_START_ANGLE,ROBOT_DIM);
 	
 	for(var i = 0; i < blackLine.length; i++) {
 		blackLine[i].x = blackLine[i].x*BLACK_LINE_SCALEX;
@@ -49,10 +49,11 @@ function main() {
 	obstPolys.push(createBox(SIZEX-5,0,5,SIZEY));
 	obstPolys.push(createBox(0,0,SIZEX,5));
 	obstPolys.push(createBox(0,SIZEY-5,SIZEX,5));
-	obstPolys.push(createBox(0,0,2*SIZEX/7,3*SIZEY/7));
-	obstPolys.push(createBox(5*SIZEX/7,0,2*SIZEX/7,3*SIZEY/7));
+	//obstPolys.push(createBox(0,0,2*SIZEX/7,3*SIZEY/7));
+	//obstPolys.push(createBox(5*SIZEX/7,0,2*SIZEX/7,3*SIZEY/7));
+	obstPolys.push(createBox(SIZEX/2-50,SIZEY/4,SIZEX/4,SIZEY/8));
 	
-	obstCirc = createCircle({x:SIZEX/2, y:SIZEY/2-100}, 50);
+	//obstCirc = createCircle({x:SIZEX/2, y:SIZEY/2-100}, 50);
 	
 	state.updateLineSensor();
 	state.updateDistSensor();
@@ -63,7 +64,9 @@ function main() {
 	ls_main();
 	wf_main();
 	
-	dispCode("http://192.168.0.10/~robbynevels/RobotSimulator/Custom.js");
+	var random = Math.floor(Math.random()*99999);
+	dispCode("http://10.0.0.12/~robbynevels/RobotSimulator/Custom.js?rand="+random);
+	
 }
 
 function setSizes(width, height) {
@@ -272,7 +275,8 @@ function repaint() {
 	g2.fillStyle = "lightblue";
 	g2.fillRect(0,0,SIZEX,SIZEY);
 	
-	drawBlackCirc(g2);
+	if (obstCirc)
+		drawBlackCirc(g2);
 	drawBlackLine(g2);
 	drawRobot(g2);
 	drawObstacles(g2);
@@ -282,14 +286,14 @@ function repaint() {
 	g2.fillStyle = "white";
 	g2.font = "bold 1em courier new"; 
 	g2.textalign = "right"; 
-	g2.fillText("left motor:  "+vel1, 10, 20);
-	g2.fillText("right motor: "+vel2, 10, 40);
-	g2.fillText("left wheel:  "+Math.round(state.totalw1), 10, 60);
-	g2.fillText("right wheel: "+Math.round(state.totalw2), 10, 80);
+	g2.fillText("left motor:  "+round4(vel1), 10, 20);
+	g2.fillText("right motor: "+round4(vel2), 10, 40);
+	g2.fillText("left encoder:  "+Math.round(state.totalw1), 10, 60);
+	g2.fillText("right encoder: "+Math.round(state.totalw2), 10, 80);
 	g2.fillText("line: "+state.lineSensorText(), 10, 100);
-	g2.fillText("left d:  "+Math.round(state.distSensor[0].dist), 10, 120);
-	g2.fillText("front d: "+Math.round(state.distSensor[1].dist), 10, 140);
-	g2.fillText("right d: "+Math.round(state.distSensor[2].dist), 10, 160);
+	g2.fillText("left IR:  "+Math.round(state.distSensor[0].dist), 10, 120);
+	g2.fillText("front IR: "+Math.round(state.distSensor[1].dist), 10, 140);
+	g2.fillText("right IR: "+Math.round(state.distSensor[2].dist), 10, 160);
 	
 	g2.fillText("Controls", SIZEX-180, 20); 
 	g2.fillText("left motor:  e/d", SIZEX-180, 40);

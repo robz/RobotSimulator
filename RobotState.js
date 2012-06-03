@@ -214,7 +214,8 @@ function makeState(xs, ys, thetas, ds) {
 					}
 				}
 				
-				flag |= circlesIntersect(obstCirc, sensorCircle);
+				if (obstCirc)
+					flag |= circlesIntersect(obstCirc, sensorCircle);
 				
 				this.sensorVals[i] = flag;
 			}

@@ -1,3 +1,5 @@
+// Basic line following code
+
 var cp_pow1 = 0, cp_pow2 = 0;
 
 function cp_main() {
@@ -10,18 +12,37 @@ function cp_main() {
 function cp_loop() {
 	if(!customOn) return;
 	
-	var leftDist = readDistSensor()[0];
-	var normal = leftDist-100;
-	if (normal < -10) {
-		cp_pow1 = .4;
-		cp_pow2 = -.4;
-	} else if (normal > 10) {
-		cp_pow1 = .4;
-		cp_pow2 = .6;
-	} else {
-		cp_pow1 = .8;
-		cp_pow2 = .8;
+	var linesensor = readLineSensor();
+	var error = getError(linesensor);
+	
+	// we're off the line completely, so just do what we 
+	//	did last time 
+	if (error == null) {
+		setMotorPowers(lspow1, lspow2);
+		return;
 	}
 	
-	setMotorPowers(cp_pow1, cp_pow2);
+	var p_const = .5/3.5;
+	var p1 = .5, p2 = .5;
+	if (Math.abs(error) > .5) {
+		p1 = error*(-1*p_const)+.5; 
+		p2 = error*p_const+.5;
+	}
+	
+	lspow1 = p1;
+	lspow2 = p2;
+	
+	setMotorPowers(lspow1, lspow2);
+}
+
+function getError(linesensor) {
+	var sum = 0, total = 0;
+	for(var i = 0; i < 8; i++) {
+		if(linesensor[i]) {
+			total++;
+			sum += i;
+		}
+	}
+	if (total == 0) return null;
+	return 3.5-sum/total;
 }

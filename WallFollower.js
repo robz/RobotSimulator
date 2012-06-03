@@ -10,7 +10,7 @@ function wf_main() {
 function wf_loop() {
 	if(!wallFollowerOn) return;
 	
-	var leftDist = readDistSensor()[0];
+	var leftDist = readDistSensor().left;
 	var normal = leftDist-100;
 	if (normal < -10) {
 		wfpow1 = .4;

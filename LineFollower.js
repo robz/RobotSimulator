@@ -1,14 +1,5 @@
 var lspow1 = 0, lspow2 = 0;
-var lslookup = { 
-	0: [-.5,.5],
-	1: [-.2,.5],
-	2: [.4,.8],
-	3: [.7,.7],
-	4: [.7,.7],
-	5: [.8,.4],
-	6: [.5,-.2],
-	7: [.5,-.5]
-};
+var prev_error = null;
 
 function ls_main() {
 	console.log("initializing line follower!");
@@ -18,31 +9,38 @@ function ls_main() {
 
 function ls_loop() {
 	if(!lineFollowerOn) return;
-
+	
 	var linesensor = readLineSensor();
-	var total = 0, min = -1, max;
-	for(var i = 0; i < 8; i++) {
-		if (linesensor[i]) {
-			total++;
-			max = i;
-			if(min == -1) 
-				min = i;
-		}
+	var error = getError(linesensor);
+	
+	// we're off the line completely, so just do what we 
+	//	did last time 
+	if (error == null) {
+		setMotorPowers(lspow1, lspow2);
+		return;
 	}
 	
-	if (total != 0) {
-		if (total > 5) {
-			lspow1 = lspow2 = .4;
-		} else if (Math.abs(min-3.5) == Math.abs(max-3.5)) {
-			lspow1 = lspow2 = .6;
-		} else if (Math.abs(min-3.5) > Math.abs(max-3.5)) {
-			lspow1 = lslookup[min][0];
-			lspow2 = lslookup[min][1];
-		} else {
-			lspow1 = lslookup[max][0];
-			lspow2 = lslookup[max][1];
-		}
+	var p_const = .5/3.5;
+	var p1 = .5, p2 = .5;
+	if (Math.abs(error) > .5) {
+		p1 = error*(-1*p_const)+.5; 
+		p2 = error*p_const+.5;
 	}
+	
+	lspow1 = p1;
+	lspow2 = p2;
 	
 	setMotorPowers(lspow1, lspow2);
+}
+
+function getError(linesensor) {
+	var sum = 0, total = 0;
+	for(var i = 0; i < 8; i++) {
+		if(linesensor[i]) {
+			total++;
+			sum += i;
+		}
+	}
+	if (total == 0) return null;
+	return 3.5-sum/total;
 }
