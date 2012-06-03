@@ -18,7 +18,7 @@ function cp_loop() {
 	// we're off the line completely, so just do what we 
 	//	did last time 
 	if (error == null) {
-		setMotorPowers(lspow1, lspow2);
+		setMotorPowers(cp_pow1, cp_pow2);
 		return;
 	}
 	
@@ -29,10 +29,10 @@ function cp_loop() {
 		p2 = error*p_const+.5;
 	}
 	
-	lspow1 = p1;
-	lspow2 = p2;
+	cp_pow1 = p1;
+	cp_pow2 = p2;
 	
-	setMotorPowers(lspow1, lspow2);
+	setMotorPowers(cp_pow1, cp_pow2);
 }
 
 function getError(linesensor) {
