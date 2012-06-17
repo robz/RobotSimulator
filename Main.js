@@ -65,7 +65,7 @@ function main() {
 	wf_main();
 	
 	var random = Math.floor(Math.random()*99999);
-	dispCode("http://10.0.0.12/~robbynevels/RobotSimulator/Custom.js?rand="+random);
+	dispCode("Custom.js?rand="+random);
 	
 }
 
